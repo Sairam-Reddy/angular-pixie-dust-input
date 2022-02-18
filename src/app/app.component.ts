@@ -1,4 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
+import { Particle } from './models/particle.model';
+import { Vector } from './models/vector.model';
 
 @Component({
   selector: 'my-app',
@@ -39,115 +41,5 @@ export class AppComponent implements AfterViewInit {
 
   public spawnsCharacter(keyCode) {
     return this.keys.indexOf(keyCode) === -1;
-  }
-
-  public burst(intensity) {
-    var behavior = [
-      this.behavior.force(-0.015, -0.015),
-      this.behavior.cohesion(50),
-      this.behavior.move(),
-    ];
-
-    var size = 1.25;
-    var force = 0.7;
-    var lifeMin = 0;
-    var progress =
-      Math.min(this.field.width, this.caret.offsetWidth) / this.field.width;
-    var offset = this.field.left + this.field.width * progress;
-    var rangeMin = Math.max(this.field.left, offset - 30);
-    var rangeMax = Math.min(this.field.right, offset + 10);
-
-    this.spray(intensity, function () {
-      return [
-        null,
-        null,
-        Vector.create(
-          this.getRandomBetweenNumber(rangeMin + 10, rangeMax - 20),
-          this.getRandomBetweenNumber(
-            this.field.top + 15,
-            this.field.bottom - 15
-          )
-        ),
-        Vector.random(force),
-        size + Math.random(),
-        this.getRandomBetweenNumber(lifeMin, 0),
-        behavior,
-      ];
-    });
-
-    // top edge
-    this.spray(intensity * 0.5, function () {
-      return [
-        null,
-        null,
-        Vector.create(
-          this.getRandomBetweenNumber(rangeMin, rangeMax),
-          this.field.top
-        ),
-        Vector.random(force),
-        size + Math.random(),
-        this.getRandomBetweenNumber(lifeMin, 0),
-        behavior,
-      ];
-    });
-
-    // bottom edge
-    this.spray(intensity * 0.5, function () {
-      return [
-        null,
-        null,
-        Vector.create(
-          this.getRandomBetweenNumber(rangeMin, rangeMax),
-          this.field.top + this.field.height
-        ),
-        Vector.random(force),
-        size + Math.random(),
-        this.getRandomBetweenNumber(lifeMin, 0),
-        behavior,
-      ];
-    });
-
-    // left edge
-    if (this.input.value.length === 1) {
-      this.spray(intensity * 2, function () {
-        return [
-          null,
-          null,
-          Vector.create(
-            field.left + Math.random() * 20,
-            this.getRandomBetweenNumber(this.field.top, this.field.bottom)
-          ),
-          Vector.random(force),
-          size + Math.random(),
-          this.getRandomBetweenNumber(lifeMin, 0),
-          behavior,
-        ];
-      });
-    }
-
-    // right edge
-    if (rangeMax == this.field.right) {
-      this.spray(intensity * 2, function () {
-        return [
-          null,
-          null,
-          Vector.create(
-            this.field.right,
-            this.getRandomBetweenNumber(this.field.top, this.field.bottom)
-          ),
-          Vector.random(force),
-          size + Math.random(),
-          this.getRandomBetweenNumber(lifeMin, 0),
-          behavior,
-        ];
-      });
-    }
-  }
-
-  /**
-   * Random
-   */
-  private getRandomBetweenNumber(min, max) {
-    return min + Math.random() * (max - min);
   }
 }
