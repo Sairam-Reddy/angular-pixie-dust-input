@@ -55,6 +55,8 @@ export class AppComponent implements AfterViewInit {
     this.input.onblur = () => {
       this.hasFocus = false;
     };
+
+    this.testSimulate();
   }
 
   public reposition() {
