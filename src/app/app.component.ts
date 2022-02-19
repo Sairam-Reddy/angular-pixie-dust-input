@@ -327,9 +327,9 @@ export class AppComponent implements AfterViewInit {
     };
 
     this.behavior = {
-      cohesion: (range, speed) => {
-        range = Math.pow(range || 100, 2);
-        speed = speed || 0.001;
+      cohesion: (range = 100, speed = 0.001) => {
+        range = Math.pow(range, 2);
+
         return (particle) => {
           var center = new Vector();
           var i = 0;
