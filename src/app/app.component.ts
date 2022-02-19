@@ -44,8 +44,8 @@ export class AppComponent implements AfterViewInit {
     this.caret.style.visibility = 'hidden';
     document.body.appendChild(this.caret);
 
-    window.onload = this.reposition;
-    window.onresize = this.reposition;
+    window.onload = this.reposition.bind(this);
+    window.onresize = this.reposition.bind(this);
     this.reposition();
 
     this.input.onfocus = () => {
