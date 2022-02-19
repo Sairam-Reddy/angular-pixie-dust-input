@@ -39,8 +39,8 @@ export class AppComponent implements AfterViewInit {
     this.input = document.querySelector('input');
     this.caret = document.createElement('span');
     this.caret.style.position = 'absolute';
-    this.caret.style.left = '200px';
-    this.caret.style.top = '200px';
+    this.caret.style.left = 0;
+    this.caret.style.top = 0;
     this.caret.style.margin = 0;
     this.caret.style.width = 'auto';
     this.caret.style.visibility = 'hidden';

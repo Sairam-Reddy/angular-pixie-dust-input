@@ -1,9 +1,13 @@
+:host {
+  height: 100%;
+  overflow: hidden;
+}
+
 ::ng-deep {
   html,
   body {
-    min-height: 100vh;
-    height: auto;
-    margin: 0;
+    height: 100%;
+    overflow: hidden;
   }
 
   html {
