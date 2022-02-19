@@ -664,7 +664,7 @@ export class AppComponent implements AfterViewInit {
     var l = this.particles.length;
     var p;
     for (; i < l; i++) {
-      this.particles[i].update();
+      this.particles[i].update(this.stage);
     }
 
     // clean destroyed particles
