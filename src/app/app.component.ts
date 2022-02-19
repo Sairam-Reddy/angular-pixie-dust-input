@@ -30,7 +30,7 @@ export class AppComponent implements AfterViewInit {
   private behavior: any;
   private paint: any;
   private update: any;
-  private stage: any;
+  private stage: any = () => {};
 
   public constructor(private element: ElementRef) {}
 
@@ -664,7 +664,7 @@ export class AppComponent implements AfterViewInit {
     var l = this.particles.length;
     var p;
     for (; i < l; i++) {
-      this.particles[i].update(this.stage);
+      this.particles[i].update();
     }
 
     // clean destroyed particles
