@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef } from '@angular/core';
 import { Particle } from './models/particle.model';
 import { Vector } from './models/vector.model';
 
@@ -32,17 +32,19 @@ export class AppComponent implements AfterViewInit {
   private update: any;
   private stage: any;
 
+  public constructor(private element: ElementRef) {}
+
   public ngAfterViewInit(): void {
     this.canvas = document.querySelector('canvas');
     this.input = document.querySelector('input');
     this.caret = document.createElement('span');
     this.caret.style.position = 'absolute';
-    this.caret.style.left = 0;
-    this.caret.style.top = 0;
+    this.caret.style.left = '200px';
+    this.caret.style.top = '200px';
     this.caret.style.margin = 0;
     this.caret.style.width = 'auto';
     this.caret.style.visibility = 'hidden';
-    document.body.appendChild(this.caret);
+    this.element.nativeElement.appendChild(this.caret);
 
     window.onload = this.reposition.bind(this);
     window.onresize = this.reposition.bind(this);
@@ -294,7 +296,7 @@ export class AppComponent implements AfterViewInit {
   private setup(dimensions, options) {
     // create
     this.canvas = document.createElement('canvas');
-    document.body.appendChild(this.canvas);
+    this.element.nativeElement.appendChild(this.canvas);
 
     // correct canvas size on window resize
     window.addEventListener('resize', this.fitCanvas.bind(this));
