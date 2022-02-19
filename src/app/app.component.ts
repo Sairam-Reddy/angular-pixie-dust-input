@@ -61,6 +61,10 @@ export class AppComponent implements AfterViewInit {
     return this.keys.indexOf(keyCode) === -1;
   }
 
+  private getRandomBetween(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
   private burst(intensity) {
     var behavior = [
       this.behavior.force(-0.015, -0.015),
@@ -82,12 +86,15 @@ export class AppComponent implements AfterViewInit {
         null,
         null,
         Vector.create(
-          Random.between(rangeMin + 10, rangeMax - 20),
-          Random.between(this.field.top + 15, this.field.bottom - 15)
+          this.getRandomBetween.between(rangeMin + 10, rangeMax - 20),
+          this.getRandomBetween.between(
+            this.field.top + 15,
+            this.field.bottom - 15
+          )
         ),
         Vector.random(force),
         size + Math.random(),
-        Random.between(lifeMin, 0),
+        this.getRandomBetween.between(lifeMin, 0),
         behavior,
       ];
     });
@@ -97,10 +104,13 @@ export class AppComponent implements AfterViewInit {
       return [
         null,
         null,
-        Vector.create(Random.between(rangeMin, rangeMax), this.field.top),
+        Vector.create(
+          this.getRandomBetween.between(rangeMin, rangeMax),
+          this.field.top
+        ),
         Vector.random(force),
         size + Math.random(),
-        Random.between(lifeMin, 0),
+        this.getRandomBetween.between(lifeMin, 0),
         behavior,
       ];
     });
@@ -111,12 +121,12 @@ export class AppComponent implements AfterViewInit {
         null,
         null,
         Vector.create(
-          Random.between(rangeMin, rangeMax),
+          this.getRandomBetween.between(rangeMin, rangeMax),
           this.field.top + this.field.height
         ),
         Vector.random(force),
         size + Math.random(),
-        Random.between(lifeMin, 0),
+        this.getRandomBetween.between(lifeMin, 0),
         behavior,
       ];
     });
@@ -129,11 +139,11 @@ export class AppComponent implements AfterViewInit {
           null,
           Vector.create(
             this.field.left + Math.random() * 20,
-            Random.between(this.field.top, this.field.bottom)
+            this.getRandomBetween.between(this.field.top, this.field.bottom)
           ),
           Vector.random(force),
           size + Math.random(),
-          Random.between(lifeMin, 0),
+          this.getRandomBetween.between(lifeMin, 0),
           behavior,
         ];
       });
@@ -147,11 +157,11 @@ export class AppComponent implements AfterViewInit {
           null,
           Vector.create(
             this.field.right,
-            Random.between(this.field.top, this.field.bottom)
+            this.getRandomBetween.between(this.field.top, this.field.bottom)
           ),
           Vector.random(force),
           size + Math.random(),
-          Random.between(lifeMin, 0),
+          this.getRandomBetween.between(lifeMin, 0),
           behavior,
         ];
       });
@@ -203,13 +213,13 @@ export class AppComponent implements AfterViewInit {
         // nothing
       },
       action: (e) => {
-        if (!spawnsCharacter(e.keyCode)) {
+        if (!this.spawnsCharacter(e.keyCode)) {
           return;
         }
 
         this.caret.textContent = this.input.value;
 
-        burst.call(this, 12);
+        this.burst(12);
 
         this.input.classList.add('keyup');
         setTimeout(() => {
@@ -256,9 +266,9 @@ export class AppComponent implements AfterViewInit {
     }
 
     if (document.readyState === 'interactive') {
-      setup();
+      this.setup();
     } else {
-      document.addEventListener('DOMContentLoaded', setup);
+      document.addEventListener('DOMContentLoaded', this.setup);
     }
   }
 
@@ -289,24 +299,6 @@ export class AppComponent implements AfterViewInit {
     // get context for drawing
     this.context = this.canvas.getContext(dimensions);
 
-    function debug(particle) {
-      this.paint.circle(
-        particle.position.x,
-        particle.position.y,
-        particle.size,
-        'rgba(255,0,0,.75)'
-      );
-      this.context.beginPath();
-      this.context.moveTo(particle.position.x, particle.position.y);
-      this.context.lineTo(
-        particle.position.x + particle.velocity.x * 10,
-        particle.position.y + particle.velocity.y * 10
-      );
-      this.context.strokeStyle = 'rgba(255,0,0,.1)';
-      this.context.stroke();
-      this.context.closePath();
-    }
-
     this.clear = clear;
     this.destroy = destroy;
     this.add = add;
@@ -314,13 +306,13 @@ export class AppComponent implements AfterViewInit {
     this.debug = debug;
 
     this.paint = {
-      circle: function (x, y, size, color) {
+      circle: (x, y, size, color) => {
         this.context.beginPath();
         this.context.arc(x, y, size, 0, 2 * Math.PI, false);
         this.context.fillStyle = color;
         this.context.fill();
       },
-      square: function (x, y, size, color) {
+      square: (x, y, size, color) => {
         this.context.beginPath();
         this.context.rect(x - size * 0.5, y - size * 0.5, size, size);
         this.context.fillStyle = color;
@@ -329,10 +321,10 @@ export class AppComponent implements AfterViewInit {
     };
 
     this.behavior = {
-      cohesion: function (range, speed) {
+      cohesion: (range, speed) => {
         range = Math.pow(range || 100, 2);
         speed = speed || 0.001;
-        return function (particle) {
+        return (particle) => {
           var center = new Vector();
           var i = 0;
           var l = this.particles.length;
@@ -372,10 +364,10 @@ export class AppComponent implements AfterViewInit {
           particle.velocity.add(center);
         };
       },
-      separation: function (distance) {
+      separation: (distance) => {
         var distance = Math.pow(distance || 25, 2);
 
-        return function (particle) {
+        return (particle) => {
           var heading = new Vector();
           var i = 0;
           var l = this.particles.length;
@@ -424,9 +416,9 @@ export class AppComponent implements AfterViewInit {
           particle.velocity.add(heading);
         };
       },
-      alignment: function (range) {
+      alignment: (range) => {
         range = Math.pow(range || 100, 2);
-        return function (particle) {
+        return (particle) => {
           var i = 0;
           var l = this.particles.length;
           var count = 0;
@@ -464,16 +456,16 @@ export class AppComponent implements AfterViewInit {
           particle.velocity.add(heading);
         };
       },
-      move: function () {
-        return function (particle) {
+      move: () => {
+        return (particle) => {
           particle.position.add(particle.velocity);
 
           // handle collisions?
         };
       },
-      eat: function (food) {
+      eat: (food) => {
         food = food || [];
-        return function (particle) {
+        return (particle) => {
           var i = 0;
           var l = this.particles.length;
           var prey;
@@ -498,21 +490,21 @@ export class AppComponent implements AfterViewInit {
           }
         };
       },
-      force: function (x, y) {
-        return function (particle) {
+      force: (x, y) => {
+        return (particle) => {
           particle.velocity.x += x;
           particle.velocity.y += y;
         };
       },
-      limit: function (treshold) {
-        return function (particle) {
+      limit: (treshold) => {
+        return (particle) => {
           particle.velocity.limit(treshold);
         };
       },
-      attract: function (forceMultiplier, groups) {
+      attract: (forceMultiplier, groups) => {
         forceMultiplier = forceMultiplier || 1;
         groups = groups || [];
-        return function (particle) {
+        return (particle) => {
           // attract other particles
           var totalForce = new Vector(0, 0);
           var force = new Vector(0, 0);
@@ -551,8 +543,8 @@ export class AppComponent implements AfterViewInit {
           particle.velocity.add(totalForce);
         };
       },
-      wrap: function (margin) {
-        return function (particle) {
+      wrap: (margin) => {
+        return (particle) => {
           // move around when particle reaches edge of screen
           var position = particle.position;
           var radius = particle.size * 0.5;
@@ -574,8 +566,8 @@ export class AppComponent implements AfterViewInit {
           }
         };
       },
-      reflect: function () {
-        return function (particle) {
+      reflect: () => {
+        return (particle) => {
           // bounce from edges
           var position = particle.position;
           var velocity = particle.velocity;
@@ -598,8 +590,8 @@ export class AppComponent implements AfterViewInit {
           }
         };
       },
-      edge: function (action) {
-        return function (particle) {
+      edge: (action) => {
+        return (particle) => {
           var position = particle.position;
           var velocity = particle.velocity;
           var radius = particle.size * 0.5;
@@ -626,22 +618,22 @@ export class AppComponent implements AfterViewInit {
     // public
     Object.defineProperties(this, {
       particles: {
-        get: function () {
+        get: () => {
           return this.particles;
         },
       },
       width: {
-        get: function () {
+        get: () => {
           return this.canvas.width;
         },
       },
       height: {
-        get: function () {
+        get: () => {
           return this.canvas.height;
         },
       },
       context: {
-        get: function () {
+        get: () => {
           return this.context;
         },
       },
@@ -655,7 +647,7 @@ export class AppComponent implements AfterViewInit {
 
     // start listening to events
     var self = this;
-    document.addEventListener('keyup', function (e) {
+    document.addEventListener('keyup', (e) => {
       options.action.call(self, e);
     });
   }
@@ -712,7 +704,7 @@ export class AppComponent implements AfterViewInit {
     this.act();
 
     // on to the next frame
-    window.requestAnimationFrame(tick);
+    window.requestAnimationFrame(this.tick);
   }
 
   private destroy(particle) {
@@ -730,5 +722,23 @@ export class AppComponent implements AfterViewInit {
     for (; i < amount; i++) {
       add.apply(this, config());
     }
+  }
+
+  private debug(particle) {
+    this.paint.circle(
+      particle.position.x,
+      particle.position.y,
+      particle.size,
+      'rgba(255,0,0,.75)'
+    );
+    this.context.beginPath();
+    this.context.moveTo(particle.position.x, particle.position.y);
+    this.context.lineTo(
+      particle.position.x + particle.velocity.x * 10,
+      particle.position.y + particle.velocity.y * 10
+    );
+    this.context.strokeStyle = 'rgba(255,0,0,.1)';
+    this.context.stroke();
+    this.context.closePath();
   }
 }
