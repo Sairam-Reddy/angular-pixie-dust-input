@@ -22,6 +22,12 @@ export class AppComponent implements AfterViewInit {
   PI_2 = Math.PI / 2;
   PI_180 = Math.PI / 180;
 
+  // private vars
+  private particles = [];
+  private destroyed = [];
+  // private canvas;
+  private context;
+
   public ngAfterViewInit(): void {
     this.canvas = document.querySelector('canvas');
     this.input = document.querySelector('input');
@@ -53,5 +59,676 @@ export class AppComponent implements AfterViewInit {
 
   public spawnsCharacter(keyCode) {
     return this.keys.indexOf(keyCode) === -1;
+  }
+
+  private burst(intensity) {
+    var behavior = [
+      this.behavior.force(-0.015, -0.015),
+      this.behavior.cohesion(50),
+      this.behavior.move(),
+    ];
+
+    var size = 1.25;
+    var force = 0.7;
+    var lifeMin = 0;
+    var progress =
+      Math.min(this.field.width, this.caret.offsetWidth) / this.field.width;
+    var offset = this.field.left + this.field.width * progress;
+    var rangeMin = Math.max(this.field.left, offset - 30);
+    var rangeMax = Math.min(this.field.right, offset + 10);
+
+    this.spray(intensity, function () {
+      return [
+        null,
+        null,
+        Vector.create(
+          Random.between(rangeMin + 10, rangeMax - 20),
+          Random.between(this.field.top + 15, this.field.bottom - 15)
+        ),
+        Vector.random(force),
+        size + Math.random(),
+        Random.between(lifeMin, 0),
+        behavior,
+      ];
+    });
+
+    // top edge
+    this.spray(intensity * 0.5, function () {
+      return [
+        null,
+        null,
+        Vector.create(Random.between(rangeMin, rangeMax), this.field.top),
+        Vector.random(force),
+        size + Math.random(),
+        Random.between(lifeMin, 0),
+        behavior,
+      ];
+    });
+
+    // bottom edge
+    this.spray(intensity * 0.5, function () {
+      return [
+        null,
+        null,
+        Vector.create(
+          Random.between(rangeMin, rangeMax),
+          this.field.top + this.field.height
+        ),
+        Vector.random(force),
+        size + Math.random(),
+        Random.between(lifeMin, 0),
+        behavior,
+      ];
+    });
+
+    // left edge
+    if (this.input.value.length === 1) {
+      this.spray(intensity * 2, function () {
+        return [
+          null,
+          null,
+          Vector.create(
+            this.field.left + Math.random() * 20,
+            Random.between(this.field.top, this.field.bottom)
+          ),
+          Vector.random(force),
+          size + Math.random(),
+          Random.between(lifeMin, 0),
+          behavior,
+        ];
+      });
+    }
+
+    // right edge
+    if (rangeMax == this.field.right) {
+      this.spray(intensity * 2, function () {
+        return [
+          null,
+          null,
+          Vector.create(
+            this.field.right,
+            Random.between(this.field.top, this.field.bottom)
+          ),
+          Vector.random(force),
+          size + Math.random(),
+          Random.between(lifeMin, 0),
+          behavior,
+        ];
+      });
+    }
+  }
+
+  private testSimulate() {
+    // start particle simulation
+    this.simulate('2d', {
+      init: () => {},
+      tick: (particles) => {
+        if (!particles) {
+          return;
+        }
+
+        particles.forEach((p) => {
+          if (p.life > this.MAX_LIFE) {
+            this.destroy(p);
+          }
+        });
+      },
+      beforePaint: () => {
+        this.clear();
+      },
+      paint: (particle) => {
+        var p = particle.position;
+        var s = particle.size;
+        var o = 1 - particle.life / this.MAX_LIFE;
+
+        this.paint.circle(p.x, p.y, s, 'rgba(255,255,255,' + o + ')');
+        this.paint.circle(
+          p.x,
+          p.y,
+          s + 1.5,
+          'rgba(231,244,255,' + o * 0.25 + ')'
+        );
+
+        // extra
+        var w = 2;
+        var wh = w * 0.5;
+        var h = 35;
+        var hh = h * 0.5;
+        this.context.rect(p.x - wh, p.y - hh, w, h);
+        this.context.fillStyle = 'rgba(231,244,255,' + o * 0.025 + ')';
+        this.context.fill();
+        this.context.closePath();
+      },
+      afterPaint: () => {
+        // nothing
+      },
+      action: (e) => {
+        if (!spawnsCharacter(e.keyCode)) {
+          return;
+        }
+
+        this.caret.textContent = this.input.value;
+
+        burst.call(this, 12);
+
+        this.input.classList.add('keyup');
+        setTimeout(() => {
+          this.input.classList.remove('keyup');
+        }, 100);
+      },
+    });
+  }
+
+  // setup DOM
+  private simulate(dimensions, options) {
+    var update = update || function () {};
+    var stage = stage || function () {};
+
+    if (!options) {
+      console.error('"options" object must be defined');
+      return;
+    }
+
+    if (!options.init) {
+      console.error('"init" function must be defined');
+      return;
+    }
+
+    if (!options.paint) {
+      console.error('"paint" function must be defined');
+      return;
+    }
+
+    if (!options.tick) {
+      options.tick = () => {};
+    }
+
+    if (!options.beforePaint) {
+      options.beforePaint = () => {};
+    }
+
+    if (!options.afterPaint) {
+      options.afterPaint = () => {};
+    }
+
+    if (!options.action) {
+      options.action = () => {};
+    }
+
+    if (document.readyState === 'interactive') {
+      setup();
+    } else {
+      document.addEventListener('DOMContentLoaded', setup);
+    }
+  }
+
+  // resizes canvas to fit window dimensions
+  private fitCanvas() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+
+  // create canvas for drawing
+  private setup() {
+    // create
+    this.canvas = document.createElement('canvas');
+    document.body.appendChild(this.canvas);
+
+    // correct canvas size on window resize
+    window.addEventListener('resize', this.fitCanvas);
+
+    // go
+    this.go();
+  }
+
+  // canvas has been attached, let's go!
+  private go() {
+    // set initial canvas size
+    this.fitCanvas();
+
+    // get context for drawing
+    this.context = this.canvas.getContext(dimensions);
+
+    function debug(particle) {
+      this.paint.circle(
+        particle.position.x,
+        particle.position.y,
+        particle.size,
+        'rgba(255,0,0,.75)'
+      );
+      this.context.beginPath();
+      this.context.moveTo(particle.position.x, particle.position.y);
+      this.context.lineTo(
+        particle.position.x + particle.velocity.x * 10,
+        particle.position.y + particle.velocity.y * 10
+      );
+      this.context.strokeStyle = 'rgba(255,0,0,.1)';
+      this.context.stroke();
+      this.context.closePath();
+    }
+
+    this.clear = clear;
+    this.destroy = destroy;
+    this.add = add;
+    this.spray = spray;
+    this.debug = debug;
+
+    this.paint = {
+      circle: function (x, y, size, color) {
+        this.context.beginPath();
+        this.context.arc(x, y, size, 0, 2 * Math.PI, false);
+        this.context.fillStyle = color;
+        this.context.fill();
+      },
+      square: function (x, y, size, color) {
+        this.context.beginPath();
+        this.context.rect(x - size * 0.5, y - size * 0.5, size, size);
+        this.context.fillStyle = color;
+        this.context.fill();
+      },
+    };
+
+    this.behavior = {
+      cohesion: function (range, speed) {
+        range = Math.pow(range || 100, 2);
+        speed = speed || 0.001;
+        return function (particle) {
+          var center = new Vector();
+          var i = 0;
+          var l = this.particles.length;
+          var count = 0;
+
+          if (l <= 1) {
+            return;
+          }
+
+          for (; i < l; i++) {
+            // don't use self in group
+            if (
+              this.particles[i] === particle ||
+              Vector.distanceSquared(
+                this.particles[i].position,
+                particle.position
+              ) > range
+            ) {
+              continue;
+            }
+
+            center.add(
+              Vector.subtract(this.particles[i].position, particle.position)
+            );
+            count++;
+          }
+
+          if (count > 0) {
+            center.divide(count);
+
+            center.normalize();
+            center.multiply(particle.velocity.magnitude);
+
+            center.multiply(0.05);
+          }
+
+          particle.velocity.add(center);
+        };
+      },
+      separation: function (distance) {
+        var distance = Math.pow(distance || 25, 2);
+
+        return function (particle) {
+          var heading = new Vector();
+          var i = 0;
+          var l = this.particles.length;
+          var count = 0;
+          var diff;
+
+          if (l <= 1) {
+            return;
+          }
+
+          for (; i < l; i++) {
+            // don't use self in group
+            if (
+              this.particles[i] === particle ||
+              Vector.distanceSquared(
+                this.particles[i].position,
+                particle.position
+              ) > distance
+            ) {
+              continue;
+            }
+
+            // stay away from neighbours
+            diff = Vector.subtract(
+              particle.position,
+              this.particles[i].position
+            );
+            diff.normalize();
+
+            heading.add(diff);
+            count++;
+          }
+
+          if (count > 0) {
+            // get average
+            heading.divide(count);
+
+            // make same length as current velocity (so particle won't speed up)
+            heading.normalize();
+            heading.multiply(particle.velocity.magnitude);
+
+            // limit force to make particle movement smoother
+            heading.limit(0.1);
+          }
+
+          particle.velocity.add(heading);
+        };
+      },
+      alignment: function (range) {
+        range = Math.pow(range || 100, 2);
+        return function (particle) {
+          var i = 0;
+          var l = this.particles.length;
+          var count = 0;
+          var heading = new Vector();
+
+          if (l <= 1) {
+            return;
+          }
+
+          for (; i < l; i++) {
+            // don't use self in group also don't align when out of range
+            if (
+              this.particles[i] === particle ||
+              Vector.distanceSquared(
+                this.particles[i].position,
+                particle.position
+              ) > range
+            ) {
+              continue;
+            }
+
+            heading.add(this.particles[i].velocity);
+            count++;
+          }
+
+          if (count > 0) {
+            heading.divide(count);
+            heading.normalize();
+            heading.multiply(particle.velocity.magnitude);
+
+            // limit
+            heading.multiply(0.1);
+          }
+
+          particle.velocity.add(heading);
+        };
+      },
+      move: function () {
+        return function (particle) {
+          particle.position.add(particle.velocity);
+
+          // handle collisions?
+        };
+      },
+      eat: function (food) {
+        food = food || [];
+        return function (particle) {
+          var i = 0;
+          var l = this.particles.length;
+          var prey;
+
+          for (; i < l; i++) {
+            prey = this.particles[i];
+
+            // can't eat itself, also, needs to be tasty
+            if (prey === particle || food.indexOf(prey.group) === -1) {
+              continue;
+            }
+
+            // calculate force vector
+            if (
+              Vector.distanceSquared(particle.position, neighbour.position) <
+                2 &&
+              particle.size >= neighbour.size
+            ) {
+              particle.size += neighbour.size;
+              this.destroy(neighbour);
+            }
+          }
+        };
+      },
+      force: function (x, y) {
+        return function (particle) {
+          particle.velocity.x += x;
+          particle.velocity.y += y;
+        };
+      },
+      limit: function (treshold) {
+        return function (particle) {
+          particle.velocity.limit(treshold);
+        };
+      },
+      attract: function (forceMultiplier, groups) {
+        forceMultiplier = forceMultiplier || 1;
+        groups = groups || [];
+        return function (particle) {
+          // attract other particles
+          var totalForce = new Vector(0, 0);
+          var force = new Vector(0, 0);
+          var i = 0;
+          var l = this.particles.length;
+          var distance;
+          var pull;
+          var attractor;
+          var grouping = groups.length;
+
+          for (; i < l; i++) {
+            attractor = this.particles[i];
+
+            // can't be attracted by itself or mismatched groups
+            if (
+              attractor === particle ||
+              (grouping && groups.indexOf(attractor.group) === -1)
+            ) {
+              continue;
+            }
+
+            // calculate force vector
+            force.x = attractor.position.x - particle.position.x;
+            force.y = attractor.position.y - particle.position.y;
+            distance = force.magnitude;
+            force.normalize();
+
+            // the bigger the attractor the more force
+            force.multiply(attractor.size / distance);
+
+            totalForce.add(force);
+          }
+
+          totalForce.multiply(forceMultiplier);
+
+          particle.velocity.add(totalForce);
+        };
+      },
+      wrap: function (margin) {
+        return function (particle) {
+          // move around when particle reaches edge of screen
+          var position = particle.position;
+          var radius = particle.size * 0.5;
+
+          if (position.x + radius > this.canvas.width + margin) {
+            position.x = radius;
+          }
+
+          if (position.y + radius > this.canvas.height + margin) {
+            position.y = radius;
+          }
+
+          if (position.x - radius < -margin) {
+            position.x = this.canvas.width - radius;
+          }
+
+          if (position.y - radius < -margin) {
+            position.y = this.canvas.height - radius;
+          }
+        };
+      },
+      reflect: function () {
+        return function (particle) {
+          // bounce from edges
+          var position = particle.position;
+          var velocity = particle.velocity;
+          var radius = particle.size * 0.5;
+
+          if (position.x + radius > this.canvas.width) {
+            velocity.x = -velocity.x;
+          }
+
+          if (position.y + radius > this.canvas.height) {
+            velocity.y = -velocity.y;
+          }
+
+          if (position.x - radius < 0) {
+            velocity.x = -velocity.x;
+          }
+
+          if (position.y - radius < 0) {
+            velocity.y = -velocity.y;
+          }
+        };
+      },
+      edge: function (action) {
+        return function (particle) {
+          var position = particle.position;
+          var velocity = particle.velocity;
+          var radius = particle.size * 0.5;
+
+          if (position.x + radius > this.canvas.width) {
+            action(particle);
+          }
+
+          if (position.y + radius > this.canvas.height) {
+            action(particle);
+          }
+
+          if (position.x - radius < 0) {
+            action(particle);
+          }
+
+          if (position.y - radius < 0) {
+            action(particle);
+          }
+        };
+      },
+    };
+
+    // public
+    Object.defineProperties(this, {
+      particles: {
+        get: function () {
+          return this.particles;
+        },
+      },
+      width: {
+        get: function () {
+          return this.canvas.width;
+        },
+      },
+      height: {
+        get: function () {
+          return this.canvas.height;
+        },
+      },
+      context: {
+        get: function () {
+          return this.context;
+        },
+      },
+    });
+
+    // call init method so the scene can be setup
+    options.init.call(this);
+
+    // start ticking
+    this.tick();
+
+    // start listening to events
+    var self = this;
+    document.addEventListener('keyup', function (e) {
+      options.action.call(self, e);
+    });
+  }
+
+  // simulation update loop
+  private act() {
+    // update particle states
+    var i = 0;
+    var l = this.particles.length;
+    var p;
+    for (; i < l; i++) {
+      this.particles[i].update(this);
+    }
+
+    // clean destroyed particles
+    while ((p = this.destroyed.pop())) {
+      do {
+        // has not been found in destroyed array?
+        if (p !== this.particles[i]) {
+          continue;
+        }
+
+        // remove particle
+        this.particles.splice(i, 1);
+      } while (i-- >= 0);
+    }
+
+    // repaint context
+    options.beforePaint.call(this);
+
+    // repaint particles
+    i = 0;
+    l = this.particles.length;
+    for (; i < l; i++) {
+      options.paint.call(this, this.particles[i]);
+    }
+
+    // after particles have been painted
+    options.afterPaint.call(this);
+  }
+
+  /**
+   * API
+   **/
+  private clear() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private tick() {
+    // call update method, this allows for inserting particles later on
+    options.tick.call(this, this.particles);
+
+    // update particles here
+    this.act();
+
+    // on to the next frame
+    window.requestAnimationFrame(tick);
+  }
+
+  private destroy(particle) {
+    this.destroyed.push(particle);
+  }
+
+  private add(id, group, position, velocity, size, life, behavior) {
+    this.particles.push(
+      new Particle(id, group, position, velocity, size, life, behavior)
+    );
+  }
+
+  private spray(amount, config) {
+    var i = 0;
+    for (; i < amount; i++) {
+      add.apply(this, config());
+    }
   }
 }
