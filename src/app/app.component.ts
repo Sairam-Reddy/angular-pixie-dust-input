@@ -727,15 +727,8 @@ export class AppComponent implements AfterViewInit {
   private spray(amount, config) {
     var i = 0;
     for (; i < amount; i++) {
-      this.add(
-        config[0],
-        config[1],
-        config[2],
-        config[3],
-        config[4],
-        config[5],
-        config[6]
-      );
+      const agrs = config();
+      this.add(agrs[0], agrs[1], agrs[2], agrs[3], agrs[4], agrs[5], agrs[6]);
     }
   }
 
