@@ -302,12 +302,6 @@ export class AppComponent implements AfterViewInit {
     // get context for drawing
     this.context = this.canvas.getContext(dimensions);
 
-    // this.clear = clear;
-    // this.destroy = destroy;
-    // this.add = add;
-    // this.spray = spray;
-    // this.debug = debug;
-
     this.paint = {
       circle: (x, y, size, color) => {
         this.context.beginPath();
@@ -616,30 +610,6 @@ export class AppComponent implements AfterViewInit {
         };
       },
     };
-
-    // // public
-    // Object.defineProperties(this, {
-    //   particles: {
-    //     get: () => {
-    //       return this.particles;
-    //     },
-    //   },
-    //   width: {
-    //     get: () => {
-    //       return this.canvas.width;
-    //     },
-    //   },
-    //   height: {
-    //     get: () => {
-    //       return this.canvas.height;
-    //     },
-    //   },
-    //   context: {
-    //     get: () => {
-    //       return this.context;
-    //     },
-    //   },
-    // });
 
     // call init method so the scene can be setup
     options.init();
