@@ -370,8 +370,8 @@ export class AppComponent implements AfterViewInit {
           particle.velocity.add(center);
         };
       },
-      separation: (distance: number) => {
-        distance = Math.pow(distance || 25, 2);
+      separation: (distance: number = 25) => {
+        distance = Math.pow(distance, 2);
 
         return (particle) => {
           var heading = new Vector();
