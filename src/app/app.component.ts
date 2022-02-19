@@ -273,13 +273,15 @@ export class AppComponent implements AfterViewInit {
       options.action = () => {};
     }
 
-    if (document.readyState === 'interactive') {
-      this.setup(dimensions, options);
-    } else {
-      document.addEventListener('DOMContentLoaded', () => {
-        this.setup(dimensions, options);
-      });
-    }
+    // if (document.readyState === 'interactive') {
+    //   this.setup(dimensions, options);
+    // } else {
+    //   document.addEventListener('DOMContentLoaded', () => {
+    //     this.setup(dimensions, options);
+    //   });
+    // }
+
+    this.setup(dimensions, options);
   }
 
   // resizes canvas to fit window dimensions
@@ -295,7 +297,7 @@ export class AppComponent implements AfterViewInit {
     document.body.appendChild(this.canvas);
 
     // correct canvas size on window resize
-    window.addEventListener('resize', this.fitCanvas);
+    window.addEventListener('resize', this.fitCanvas.bind(this));
 
     // go
     this.go(dimensions, options);
@@ -625,29 +627,29 @@ export class AppComponent implements AfterViewInit {
       },
     };
 
-    // public
-    Object.defineProperties(this, {
-      particles: {
-        get: () => {
-          return this.particles;
-        },
-      },
-      width: {
-        get: () => {
-          return this.canvas.width;
-        },
-      },
-      height: {
-        get: () => {
-          return this.canvas.height;
-        },
-      },
-      context: {
-        get: () => {
-          return this.context;
-        },
-      },
-    });
+    // // public
+    // Object.defineProperties(this, {
+    //   particles: {
+    //     get: () => {
+    //       return this.particles;
+    //     },
+    //   },
+    //   width: {
+    //     get: () => {
+    //       return this.canvas.width;
+    //     },
+    //   },
+    //   height: {
+    //     get: () => {
+    //       return this.canvas.height;
+    //     },
+    //   },
+    //   context: {
+    //     get: () => {
+    //       return this.context;
+    //     },
+    //   },
+    // });
 
     // call init method so the scene can be setup
     options.init();
@@ -714,7 +716,9 @@ export class AppComponent implements AfterViewInit {
     this.act(options);
 
     // on to the next frame
-    window.requestAnimationFrame(this.tick.bind(this));
+    window.requestAnimationFrame(() => {
+      this.tick(options);
+    });
   }
 
   private destroy(particle) {
