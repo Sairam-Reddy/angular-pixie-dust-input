@@ -181,9 +181,9 @@ export class AppComponent implements AfterViewInit {
         this.clear();
       },
       paint: (particle) => {
-        var p = particle.position;
-        var s = particle.size;
-        var o = 1 - particle.life / this.MAX_LIFE;
+        const p = particle.position;
+        const s = particle.size;
+        const o = 1 - particle.life / this.MAX_LIFE;
 
         this.paint.circle(p.x, p.y, s, 'rgba(255,255,255,' + o + ')');
         this.paint.circle(
@@ -194,10 +194,10 @@ export class AppComponent implements AfterViewInit {
         );
 
         // extra
-        var w = 2;
-        var wh = w * 0.5;
-        var h = 35;
-        var hh = h * 0.5;
+        const w = 2;
+        const wh = w * 0.5;
+        const h = 35;
+        const hh = h * 0.5;
         this.context.rect(p.x - wh, p.y - hh, w, h);
         this.context.fillStyle = 'rgba(231,244,255,' + o * 0.025 + ')';
         this.context.fill();
