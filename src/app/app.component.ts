@@ -35,7 +35,7 @@ export class AppComponent implements AfterViewInit {
   public constructor(private element: ElementRef) {}
 
   public ngAfterViewInit(): void {
-    this.canvas = document.querySelector('canvas');
+    // this.canvas = document.querySelector('canvas');
     this.input = document.querySelector('input');
     this.caret = document.createElement('span');
     this.caret.style.position = 'absolute';
@@ -49,14 +49,6 @@ export class AppComponent implements AfterViewInit {
     window.onload = this.reposition.bind(this);
     window.onresize = this.reposition.bind(this);
     this.reposition();
-
-    // this.input.onfocus = () => {
-    //   this.hasFocus = true;
-    // };
-
-    // this.input.onblur = () => {
-    //   this.hasFocus = false;
-    // };
 
     this.testSimulate();
   }
