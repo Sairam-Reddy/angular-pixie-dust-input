@@ -650,7 +650,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     // call init method so the scene can be setup
-    options.init.call(this);
+    options.init();
 
     // start ticking
     this.tick(options);
@@ -658,7 +658,7 @@ export class AppComponent implements AfterViewInit {
     // start listening to events
     var self = this;
     document.addEventListener('keyup', (e) => {
-      options.action.call(self, e);
+      options.action(self, e);
     });
   }
 
@@ -686,17 +686,17 @@ export class AppComponent implements AfterViewInit {
     }
 
     // repaint context
-    options.beforePaint.call(this);
+    options.beforePaint();
 
     // repaint particles
     i = 0;
     l = this.particles.length;
     for (; i < l; i++) {
-      options.paint.call(this, this.particles[i]);
+      options.paint(this.particles[i]);
     }
 
     // after particles have been painted
-    options.afterPaint.call(this);
+    options.afterPaint();
   }
 
   /**
@@ -708,7 +708,7 @@ export class AppComponent implements AfterViewInit {
 
   private tick(options) {
     // call update method, this allows for inserting particles later on
-    options.tick.call(this, this.particles);
+    options.tick(this.particles);
 
     // update particles here
     this.act(options);
