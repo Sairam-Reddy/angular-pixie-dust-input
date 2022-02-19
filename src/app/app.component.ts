@@ -66,84 +66,81 @@ export class AppComponent implements AfterViewInit {
   }
 
   private burst(intensity) {
-    var behavior = [
+    let behavior = [
       this.behavior.force(-0.015, -0.015),
       this.behavior.cohesion(50),
       this.behavior.move(),
     ];
 
-    var size = 1.25;
-    var force = 0.7;
+    let size = 1.25;
+    let force = 0.7;
     var lifeMin = 0;
-    var progress =
+    let progress =
       Math.min(this.field.width, this.caret.offsetWidth) / this.field.width;
-    var offset = this.field.left + this.field.width * progress;
-    var rangeMin = Math.max(this.field.left, offset - 30);
-    var rangeMax = Math.min(this.field.right, offset + 10);
+      let offset = this.field.left + this.field.width * progress;
+      let rangeMin = Math.max(this.field.left, offset - 30);
+      let rangeMax = Math.min(this.field.right, offset + 10);
 
-    this.spray(intensity, function () {
+    this.spray(intensity, () => {
       return [
         null,
         null,
         Vector.create(
-          this.getRandomBetween.between(rangeMin + 10, rangeMax - 20),
-          this.getRandomBetween.between(
-            this.field.top + 15,
-            this.field.bottom - 15
-          )
+          this.getRandomBetween(rangeMin + 10, rangeMax - 20),
+          this.getRandomBetween(this.field.top + 15, this.field.bottom - 15)
         ),
         Vector.random(force),
         size + Math.random(),
-        this.getRandomBetween.between(lifeMin, 0),
+        this.getRandomBetween(lifeMin, 0),
         behavior,
       ];
     });
 
     // top edge
-    this.spray(intensity * 0.5, function () {
+    this.spray(intensity * 0.5, () => {
       return [
         null,
         null,
         Vector.create(
-          this.getRandomBetween.between(rangeMin, rangeMax),
+          this.getRandomBetween(rangeMin, rangeMax),
           this.field.top
         ),
         Vector.random(force),
         size + Math.random(),
-        this.getRandomBetween.between(lifeMin, 0),
+        this.getRandomBetween(lifeMin, 0),
         behavior,
       ];
     });
 
     // bottom edge
-    this.spray(intensity * 0.5, function () {
+    this.spray(intensity * 0.5, () => {
       return [
         null,
         null,
         Vector.create(
-          this.getRandomBetween.between(rangeMin, rangeMax),
+          this.getRandomBetween(rangeMin, rangeMax),
           this.field.top + this.field.height
         ),
         Vector.random(force),
         size + Math.random(),
-        this.getRandomBetween.between(lifeMin, 0),
+        this.getRandomBetween(lifeMin, 0),
         behavior,
       ];
     });
 
     // left edge
     if (this.input.value.length === 1) {
-      this.spray(intensity * 2, function () {
+      this.spray(intensity * 2, () => {
         return [
           null,
           null,
           Vector.create(
             this.field.left + Math.random() * 20,
-            this.getRandomBetween.between(this.field.top, this.field.bottom)
+            this.getRandomBetween(this.field.top, this.field.bottom)
           ),
           Vector.random(force),
           size + Math.random(),
-          this.getRandomBetween.between(lifeMin, 0),
+          this.getRandomBetween(lifeMin, 0),
           behavior,
         ];
       });
@@ -151,17 +148,17 @@ export class AppComponent implements AfterViewInit {
 
     // right edge
     if (rangeMax == this.field.right) {
-      this.spray(intensity * 2, function () {
+      this.spray(intensity * 2, () => {
         return [
           null,
           null,
           Vector.create(
             this.field.right,
-            this.getRandomBetween.between(this.field.top, this.field.bottom)
+            this.getRandomBetween(this.field.top, this.field.bottom)
           ),
           Vector.random(force),
           size + Math.random(),
-          this.getRandomBetween.between(lifeMin, 0),
+          this.getRandomBetween(lifeMin, 0),
           behavior,
         ];
       });
@@ -231,8 +228,8 @@ export class AppComponent implements AfterViewInit {
 
   // setup DOM
   private simulate(dimensions, options) {
-    var update = update || function () {};
-    var stage = stage || function () {};
+    var update = update ||  () => {};
+    var stage = stage || () => {};
 
     if (!options) {
       console.error('"options" object must be defined');
