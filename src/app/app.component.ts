@@ -487,14 +487,14 @@ export class AppComponent implements AfterViewInit {
             }
 
             // calculate force vector
-            if (
-              Vector.distanceSquared(particle.position, neighbour.position) <
-                2 &&
-              particle.size >= neighbour.size
-            ) {
-              particle.size += neighbour.size;
-              this.destroy(neighbour);
-            }
+            // if (
+            //   Vector.distanceSquared(particle.position, neighbour.position) <
+            //     2 &&
+            //   particle.size >= neighbour.size
+            // ) {
+            //   particle.size += neighbour.size;
+            //   this.destroy(neighbour);
+            // }
           }
         };
       },
@@ -728,7 +728,15 @@ export class AppComponent implements AfterViewInit {
   private spray(amount, config) {
     var i = 0;
     for (; i < amount; i++) {
-      add.apply(this, config());
+      this.add(
+        config[0],
+        config[1],
+        config[2],
+        config[3],
+        config[4],
+        config[5],
+        config[6]
+      );
     }
   }
 
