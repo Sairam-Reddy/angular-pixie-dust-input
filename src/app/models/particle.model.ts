@@ -68,7 +68,7 @@ export class Particle {
     var l = this._behavior.length;
 
     for (; i < l; i++) {
-      this._behavior[i].call(stage, this);
+      this._behavior[i].stage();
     }
   }
 

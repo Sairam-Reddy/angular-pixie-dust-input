@@ -27,6 +27,10 @@ export class AppComponent implements AfterViewInit {
   private destroyed = [];
   // private canvas;
   private context;
+  private behavior: any;
+  private paint: any;
+  private update: any;
+  private stage: any;
 
   public ngAfterViewInit(): void {
     this.canvas = document.querySelector('canvas');
@@ -77,9 +81,9 @@ export class AppComponent implements AfterViewInit {
     var lifeMin = 0;
     let progress =
       Math.min(this.field.width, this.caret.offsetWidth) / this.field.width;
-      let offset = this.field.left + this.field.width * progress;
-      let rangeMin = Math.max(this.field.left, offset - 30);
-      let rangeMax = Math.min(this.field.right, offset + 10);
+    let offset = this.field.left + this.field.width * progress;
+    let rangeMin = Math.max(this.field.left, offset - 30);
+    let rangeMax = Math.min(this.field.right, offset + 10);
 
     this.spray(intensity, () => {
       return [
@@ -147,7 +151,7 @@ export class AppComponent implements AfterViewInit {
     }
 
     // right edge
-    if (rangeMax == this.field.right) {
+    if (rangeMax === this.field.right) {
       this.spray(intensity * 2, () => {
         return [
           null,
@@ -228,8 +232,13 @@ export class AppComponent implements AfterViewInit {
 
   // setup DOM
   private simulate(dimensions, options) {
-    var update = update ||  () => {};
-    var stage = stage || () => {};
+    if (!this.update) {
+      this.update = () => {};
+    }
+
+    if (!this.stage) {
+      this.stage = () => {};
+    }
 
     if (!options) {
       console.error('"options" object must be defined');
@@ -263,9 +272,11 @@ export class AppComponent implements AfterViewInit {
     }
 
     if (document.readyState === 'interactive') {
-      this.setup();
+      this.setup(dimensions, options);
     } else {
-      document.addEventListener('DOMContentLoaded', this.setup);
+      document.addEventListener('DOMContentLoaded', () => {
+        this.setup(dimensions, options);
+      });
     }
   }
 
@@ -276,7 +287,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   // create canvas for drawing
-  private setup() {
+  private setup(dimensions, options) {
     // create
     this.canvas = document.createElement('canvas');
     document.body.appendChild(this.canvas);
@@ -285,22 +296,22 @@ export class AppComponent implements AfterViewInit {
     window.addEventListener('resize', this.fitCanvas);
 
     // go
-    this.go();
+    this.go(dimensions, options);
   }
 
   // canvas has been attached, let's go!
-  private go() {
+  private go(dimensions, options) {
     // set initial canvas size
     this.fitCanvas();
 
     // get context for drawing
     this.context = this.canvas.getContext(dimensions);
 
-    this.clear = clear;
-    this.destroy = destroy;
-    this.add = add;
-    this.spray = spray;
-    this.debug = debug;
+    // this.clear = clear;
+    // this.destroy = destroy;
+    // this.add = add;
+    // this.spray = spray;
+    // this.debug = debug;
 
     this.paint = {
       circle: (x, y, size, color) => {
@@ -361,8 +372,8 @@ export class AppComponent implements AfterViewInit {
           particle.velocity.add(center);
         };
       },
-      separation: (distance) => {
-        var distance = Math.pow(distance || 25, 2);
+      separation: (distance: number) => {
+        distance = Math.pow(distance || 25, 2);
 
         return (particle) => {
           var heading = new Vector();
@@ -640,7 +651,7 @@ export class AppComponent implements AfterViewInit {
     options.init.call(this);
 
     // start ticking
-    this.tick();
+    this.tick(options);
 
     // start listening to events
     var self = this;
@@ -650,7 +661,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   // simulation update loop
-  private act() {
+  private act(options) {
     // update particle states
     var i = 0;
     var l = this.particles.length;
@@ -693,15 +704,15 @@ export class AppComponent implements AfterViewInit {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private tick() {
+  private tick(options) {
     // call update method, this allows for inserting particles later on
     options.tick.call(this, this.particles);
 
     // update particles here
-    this.act();
+    this.act(options);
 
     // on to the next frame
-    window.requestAnimationFrame(this.tick);
+    window.requestAnimationFrame(this.tick.bind(this));
   }
 
   private destroy(particle) {
