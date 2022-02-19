@@ -288,8 +288,8 @@ export class AppComponent implements AfterViewInit {
 
   // resizes canvas to fit window dimensions
   private fitCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    this.canvas.width = this.element.nativeElement.offsetWidth;
+    this.canvas.height = this.element.nativeElement.offsetHeight;
   }
 
   // create canvas for drawing
