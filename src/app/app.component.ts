@@ -422,8 +422,8 @@ export class AppComponent implements AfterViewInit {
           particle.velocity.add(heading);
         };
       },
-      alignment: (range) => {
-        range = Math.pow(range || 100, 2);
+      alignment: (range = 100) => {
+        range = Math.pow(range, 2);
         return (particle) => {
           var i = 0;
           var l = this.particles.length;
@@ -469,8 +469,7 @@ export class AppComponent implements AfterViewInit {
           // handle collisions?
         };
       },
-      eat: (food) => {
-        food = food || [];
+      eat: (food = []) => {
         return (particle) => {
           var i = 0;
           var l = this.particles.length;
