@@ -12,7 +12,7 @@ export class AppComponent implements AfterViewInit {
   public canvas;
   public input;
   public field;
-  public hasFocus = false;
+  // public hasFocus = false;
   public caret;
 
   private keys = [
@@ -50,13 +50,13 @@ export class AppComponent implements AfterViewInit {
     window.onresize = this.reposition.bind(this);
     this.reposition();
 
-    this.input.onfocus = () => {
-      this.hasFocus = true;
-    };
+    // this.input.onfocus = () => {
+    //   this.hasFocus = true;
+    // };
 
-    this.input.onblur = () => {
-      this.hasFocus = false;
-    };
+    // this.input.onblur = () => {
+    //   this.hasFocus = false;
+    // };
 
     this.testSimulate();
   }
