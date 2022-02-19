@@ -12,7 +12,6 @@ export class AppComponent implements AfterViewInit {
   public canvas;
   public input;
   public field;
-  // public hasFocus = false;
   public caret;
 
   private keys = [
@@ -22,10 +21,9 @@ export class AppComponent implements AfterViewInit {
   PI_2 = Math.PI / 2;
   PI_180 = Math.PI / 180;
 
-  // private vars
   private particles = [];
   private destroyed = [];
-  // private canvas;
+
   private context;
   private behavior: any;
   private paint: any;
@@ -35,7 +33,6 @@ export class AppComponent implements AfterViewInit {
   public constructor(private element: ElementRef) {}
 
   public ngAfterViewInit(): void {
-    // this.canvas = document.querySelector('canvas');
     this.input = document.querySelector('input');
     this.caret = document.createElement('span');
     this.caret.style.position = 'absolute';
