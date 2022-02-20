@@ -18,8 +18,6 @@ export class AppComponent implements AfterViewInit {
     8, 9, 13, 16, 17, 18, 27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 46, 91, 93,
     112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123,
   ];
-  PI_2 = Math.PI / 2;
-  PI_180 = Math.PI / 180;
 
   private particles = [];
   private destroyed = [];
